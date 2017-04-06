@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/ServiceMessage.iml" filepath="$PROJECT_DIR$/ServiceMessage.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/iservice/iservice.iml" filepath="$PROJECT_DIR$/iservice/iservice.iml" />
     </modules>
   </component>
 </project>
