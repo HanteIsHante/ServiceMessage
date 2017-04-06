@@ -9,6 +9,8 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.example.service.iservice.Book;
@@ -19,12 +21,13 @@ import com.example.service.iservice.MyIService;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "MainActivity";
     private List<Book> mBooks = new ArrayList<>();
     private IService_AIDL iService_aidl;
     private TextView show_text;
+    private Button button;
 
     @Override
     protected void onCreate (Bundle savedInstanceState) {
@@ -48,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
     private IService_CallBack.Stub mCallBack = new IService_CallBack.Stub() {
         @Override
         public void onSuccess (String message) throws RemoteException {
+            Log.d(TAG, "onSuccess: " + message);
             show_text.setText(message);
         }
 
@@ -70,7 +74,9 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "onServiceConnected: result 结果" + result + " | "
                             + book.toString());
                 }
-                iService_aidl.start("可口可乐", 111);
+                for(int i = 0; i < 20; i++) {
+                    iService_aidl.start("清明时节雨纷纷", 66666);
+                }
             } catch(RemoteException e) {
                 e.printStackTrace();
             }
@@ -88,11 +94,23 @@ public class MainActivity extends AppCompatActivity {
 
     private void initView () {
         show_text = (TextView) findViewById(R.id.show_text);
+        button = (Button) findViewById(R.id.button);
+        button.setOnClickListener(this);
     }
 
     @Override
     protected void onStop () {
         super.onStop();
-        unbindService(mServiceConnection);
+        unbindService(mServiceConnection); // 解绑
+    }
+
+    @Override
+    public void onClick (View v) {
+        switch(v.getId()) {
+            case R.id.button:
+                Intent intent = new Intent(this, MessengerServiceActivity.class);
+                startActivity(intent);
+                break;
+        }
     }
 }
