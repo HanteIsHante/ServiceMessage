@@ -65,8 +65,10 @@ public class MainActivity extends AppCompatActivity {
                 iService_aidl = IService_AIDL.Stub.asInterface(service);
                 iService_aidl.successCallBack(mCallBack);
                 mBooks = iService_aidl.getBooks();
+                int result = iService_aidl.result(11, 99);
                 for(Book book : mBooks) {
-                    Log.d(TAG, "onServiceConnected: " + book.toString());
+                    Log.d(TAG, "onServiceConnected: result 结果" + result + " | "
+                            + book.toString());
                 }
                 iService_aidl.start("可口可乐", 111);
             } catch(RemoteException e) {
@@ -77,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onServiceDisconnected (ComponentName name) {
             try {
-                iService_aidl.failedCallBack(mCallBack);
+                iService_aidl.unRegisterCallBack(mCallBack);
             } catch(RemoteException e) {
                 e.printStackTrace();
             }
@@ -86,5 +88,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void initView () {
         show_text = (TextView) findViewById(R.id.show_text);
+    }
+
+    @Override
+    protected void onStop () {
+        super.onStop();
+        unbindService(mServiceConnection);
     }
 }
