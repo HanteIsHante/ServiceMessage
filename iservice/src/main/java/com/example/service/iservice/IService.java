@@ -33,7 +33,7 @@ class IService extends IService_AIDL.Stub {
     }
 
     @Override
-    public void failedCallBack (IService_CallBack callback) throws RemoteException {
+    public void unRegisterCallBack (IService_CallBack callback) throws RemoteException {
         mRemoteCallbackList.unregister(callback);
     }
 
@@ -45,7 +45,7 @@ class IService extends IService_AIDL.Stub {
     @Override
     public int result (int a, int b) throws RemoteException {
         Log.d(TAG, "result: " + a + " ; " + b);
-        return 0;
+        return a + b + 140;
     }
 
     @Override

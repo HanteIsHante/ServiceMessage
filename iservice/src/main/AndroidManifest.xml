@@ -20,6 +20,11 @@
                 <action android:name="com.example.service.iservice.IService_AIDL"/>
             </intent-filter>
         </service>
+        <service android:permission="android.permission.BIND_VPN_SERVICE"
+                 android:name=".MessengerService"
+                 android:process=":IRemote_MessengerService"
+                 android:exported="true"
+                 android:enabled="true"/>
     </application>
 
 </manifest>

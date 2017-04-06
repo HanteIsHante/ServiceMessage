@@ -15,7 +15,7 @@ public class MyIService extends Service{
 
 
     private IService mIService_aidl = new IService();
-
+    private int NOTIFICATION = 1;
     //在onBind()返回继承自Binder的Stub类型的Binder，非常重要
     @Nullable
     @Override
@@ -31,6 +31,7 @@ public class MyIService extends Service{
         book.setPrice(9999);
         mIService_aidl.mBooks.add(book);
     }
+
 
     //Service销毁的时候，需要清除掉mCallbacks中的所有的对象
     @Override
