@@ -23,6 +23,7 @@ public class MessengerServiceActivity extends AppCompatActivity {
     Messenger mMessenger;
     boolean mBound;
 
+    // 接收服务端 返回信息
     private Messenger mRespMessenger = new Messenger(new Handler(){
         @Override
         public void handleMessage (Message msg) {
@@ -67,7 +68,7 @@ public class MessengerServiceActivity extends AppCompatActivity {
             int arg0 = 1;
             int arg1 = 1;
             Message obtain = Message.obtain(null, MSG_SAY_HELLO, arg0, arg1);
-            obtain.replyTo = mRespMessenger;
+            obtain.replyTo = mRespMessenger; // 用来接收 服务端返回信息
             mMessenger.send(obtain);// 发送到服务端
         } catch(RemoteException e) {
             e.printStackTrace();
