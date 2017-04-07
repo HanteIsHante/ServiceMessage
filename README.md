@@ -4,6 +4,18 @@ Service  相关属性
 
 [绑定Service通信](https://developer.android.com/guide/components/bound-services.html?hl=zh-cn)
 
+##### Service的通信方式：
+
+
+- 通过BroadCastReceiver：这种方式是最简单的，只能用来交换简单的数据；
+ 
+- 通过Messager：这种方式是通过一个传递一个Messager给对方，通过这个它来发送Message对象。这种方式只能单向传递数据。可以是Service到Activity，也可以是从Activity发送数据给Service。一个Messeger不能同时双向发送；
+ 
+- 通过Binder来实现远程调用(IPC)：这种方式是Android的最大特色之一，让你调用远程Service的接口，就像调用本地对象一样，实现非常灵活，写起来也相对复杂。
+
+
+
+
 ##### 跨进程通信
 
 1.AIDL 方式
@@ -55,3 +67,39 @@ Messenger只提供了一个方法进行进程间通信，就是send(Message msg)
 被inout修饰的参数,既可以从client传递到server,也可以server传递到client，使用out修饰，如果参数是自定义了类型，必须实现Parcelable接口，并且实现public void readFromParcel(Parcel in)方法
 
 > 如果aidl中使用了自定义类型，必须实现Parcelable接口，并新建一个和自定义类型名相同的aidl，内容就是parcelable 接口名称
+
+##### aidl支持的文件类型
+1. Java 编程语言中的基本类型, 如 int、long、boolean 等, 不需要 import.
+
+2. String、List、Map 和 CharSequence, 不需要 import.
+
+3. AIDL 生成的 interface, 需要 import, 同一个包中也需要导入, 传递的是引用.
+　　如果定义的接口方法中有参数, 则需在前面加上 in, out 或 inout, 但是对于基本类型的参数, 默认就是 in, 并且不会是其他值.
+
+4. Parcelable 接口的自定义类, 需要 import, 同一个包中也需要导入, 其传递的是值.
+
+另外, 自定义类还需要用一个aidl文件来声明该类型.
+如定义了一个类, 它的源代码在RoadLine.java中：
+~~~
+　　package com.communicate;
+　　import android.os.Parcel;
+　　import android.os.Parcelable;
+　　public class RoadLine implements Parcelable {
+~~~
+需要在RoadLine.aidl文件中做如下声明： 
+~~~
+　　package com.communicate;
+　　import com.communicate.RoadLine;
+　　parcelable RoadLine;
+~~~
+
+
+
+
+
+
+
+
+
+
+
