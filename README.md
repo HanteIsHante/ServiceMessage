@@ -50,7 +50,7 @@ Messenger只提供了一个方法进行进程间通信，就是send(Message msg)
 
 与in相反,out修饰的参数只能由server写入并传递到client,而client传入的值并不会传递到server，使用out修饰，如果参数是自定义了类型，必须实现parcelable接口，并且实现public void readFromParcel(Parcel in)方法
 
-######inout
+###### inout
 
 被inout修饰的参数,既可以从client传递到server,也可以server传递到client，使用out修饰，如果参数是自定义了类型，必须实现Parcelable接口，并且实现public void readFromParcel(Parcel in)方法
 
