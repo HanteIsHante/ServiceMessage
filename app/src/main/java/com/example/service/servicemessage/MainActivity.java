@@ -85,7 +85,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public void onServiceDisconnected (ComponentName name) {
             try {
-                iService_aidl.unRegisterCallBack(mCallBack);
+                if(iService_aidl != null) {
+                    iService_aidl.unRegisterCallBack(mCallBack);
+                    iService_aidl = null;
+                }
             } catch(RemoteException e) {
                 e.printStackTrace();
             }
