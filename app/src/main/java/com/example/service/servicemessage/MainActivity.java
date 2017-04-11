@@ -20,6 +20,7 @@ import com.example.service.iservice.MyIService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -28,13 +29,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private IService_AIDL iService_aidl;
     private TextView show_text;
     private Button button;
+    private Button button_AIDL;
+    private Button button_stop;
 
     @Override
     protected void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        bindRemoteService();
         initView();
+        bindRemoteService();
     }
 
 
@@ -50,14 +53,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     //  接收 远程端发送信息
     private IService_CallBack.Stub mCallBack = new IService_CallBack.Stub() {
         @Override
-        public void onSuccess (String message) throws RemoteException {
+        public void onSuccess (final String message) throws RemoteException {
             Log.d(TAG, "onSuccess: " + message);
-            show_text.setText(message);
+            runOnUiThread(new TimerTask() {
+                @Override
+                public void run () {
+                    show_text.setText(message);
+                }
+            });
         }
 
         @Override
-        public void onFailed (int code, String meg) throws RemoteException {
-
+        public void onFailed (int code, final String meg) throws RemoteException {
+            Log.d(TAG, "onFailed: " + code + " ; " + meg);
+            runOnUiThread(new TimerTask() {
+                @Override
+                public void run () {
+                    show_text.setText(meg);
+                }
+            });
         }
     };
 
@@ -73,9 +87,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 for(Book book : mBooks) {
                     Log.d(TAG, "onServiceConnected: result 结果" + result + " | "
                             + book.toString());
-                }
-                for(int i = 0; i < 20; i++) {
-                    iService_aidl.start("清明时节雨纷纷", 66666);
                 }
             } catch(RemoteException e) {
                 e.printStackTrace();
@@ -99,6 +110,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         show_text = (TextView) findViewById(R.id.show_text);
         button = (Button) findViewById(R.id.button);
         button.setOnClickListener(this);
+        button_AIDL = (Button) findViewById(R.id.button_AIDL);
+        button_AIDL.setOnClickListener(this);
+        button_stop = (Button) findViewById(R.id.button_stop);
+        button_stop.setOnClickListener(this);
     }
 
     @Override
@@ -113,6 +128,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.button:
                 Intent intent = new Intent(this, MessengerServiceActivity.class);
                 startActivity(intent);
+                break;
+            case R.id.button_AIDL:
+                if(iService_aidl == null) {
+                    return;
+                }
+                new Thread(new Runnable() {
+                    @Override
+                    public void run () {
+                        try {
+                            iService_aidl.start("清明时节雨纷纷", 66666);
+                        } catch(RemoteException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
+                break;
+            case R.id.button_stop:
                 break;
         }
     }
