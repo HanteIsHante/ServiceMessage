@@ -6,6 +6,8 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created By HanTe
@@ -15,11 +17,12 @@ import java.util.List;
 class IService extends IService_AIDL.Stub {
 
     private static final String TAG = "IService";
+    private static final int CODE = 1;
     RemoteCallbackList<IService_CallBack> mRemoteCallbackList = new RemoteCallbackList<>();
+    private Lock mLock = new ReentrantLock();
     List<Book> mBooks = new ArrayList<>();
     @Override
     public List<Book> getBooks () throws RemoteException {
-        Log.d(TAG, "getBooks: 获取 book集合");
         Book book = new Book();
         book.setName("Android 开发与探索发现");
         book.setPrice(88);
@@ -38,8 +41,19 @@ class IService extends IService_AIDL.Stub {
     }
 
     @Override
-    public void start (String name, int phoneNum) throws RemoteException {
-        remoteSucCallBackList(name);
+    public void start (final String name, int phoneNum) throws RemoteException {
+        new Thread(new Runnable() {
+            @Override
+            public void run () {
+                remoteSucCallBackList(name);
+            }
+        }).start();
+       new Thread(new Runnable() {
+           @Override
+           public void run () {
+               remoteFailCallBackList(CODE, "春城无处不飞花");
+           }
+       }).start();
     }
 
     @Override
@@ -60,19 +74,29 @@ class IService extends IService_AIDL.Stub {
 
 
     private synchronized void remoteSucCallBackList (String msg){
+        mLock.lock();
         int i = mRemoteCallbackList.beginBroadcast();
         while(i > 0){
             i --;
             try {
-                mRemoteCallbackList.getBroadcastItem(i).onSuccess(msg);// 通知回调
-            } catch(RemoteException e) {
-                e.printStackTrace();
-            }
+                for(int j = 0; j < 20 ; j++) {
+                    mRemoteCallbackList.getBroadcastItem(i).onSuccess(msg);// 通知回调
+                }
+           } catch(RemoteException e) {
+               e.printStackTrace();
+           }
+       }
+        try {
+            Thread.sleep(10000);
+          mRemoteCallbackList.finishBroadcast();
+        } catch(InterruptedException e) {
+            e.printStackTrace();
         }
-        mRemoteCallbackList.finishBroadcast();
+       mLock.unlock();
     }
 
     private synchronized void remoteFailCallBackList (int code, String msg){
+        mLock.lock();
         int i = mRemoteCallbackList.beginBroadcast();
         while(i > 0){
             i --;
@@ -83,5 +107,6 @@ class IService extends IService_AIDL.Stub {
             }
         }
         mRemoteCallbackList.finishBroadcast();
+        mLock.unlock();
     }
 }
