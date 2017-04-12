@@ -93,12 +93,24 @@ Messenger只提供了一个方法进行进程间通信，就是send(Message msg)
 　　parcelable RoadLine;
 ~~~
 
+ 
 
+# JobSchedule
 
+ 在Android开发中，会存在这么些场景 : 你需要在稍后的某个时间点或者当满足某个特定的条件时执行一个任务，例如当设备接通电源适配器或者连接到WIFI。幸运的是在API 21 ( Android 5.0，即Lollipop )中，google提供了一个新叫做JobScheduler API的组件来处理这样的场景。
+ 
+ 当一系列预置的条件被满足时，JobScheduler API为你的应用执行一个操作。与AlarmManager不同的是这个执行时间是不确定的。除此之外，JobScheduler API允许同时执行多个任务。这允许你的应用执行某些指定的任务时不需要考虑时机控制引起的电池消耗。
 
+  JobScheduler在Android5.0（API Level 
+ 21）的时候就已经提供了，它的出现主要解决了某个任务需要在某种或者某几种条件满足之后触发的需求。这些条件包括网络状态，电池充电，系统空闲，数据变化等。在满足条件之后触发指定的JobService完成相应的工作。
+ 
+[JobSchedule 详解](http://zhanghuimin.com/2016/10/27/about-android-job-scheduler/)
 
+[参考资料](https://github.com/hehonghui/android-tech-frontier/tree/master/androidweekly/%E5%9C%A8Android%205.0%E4%B8%AD%E4%BD%BF%E7%94%A8JobScheduler)
 
+[官方DEMO](https://developer.android.com/samples/JobScheduler/src/com.example.android.jobscheduler/MainActivity.html)
 
+[JobInfo.Builder](https://developer.android.com/reference/android/app/job/JobInfo.Builder.html)
 
 
 
