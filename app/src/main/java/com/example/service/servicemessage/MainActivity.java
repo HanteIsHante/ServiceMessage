@@ -1,11 +1,16 @@
 package com.example.service.servicemessage;
 
 import android.app.Service;
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.os.RemoteException;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -17,7 +22,9 @@ import com.example.service.iservice.Book;
 import com.example.service.iservice.IService_AIDL;
 import com.example.service.iservice.IService_CallBack;
 import com.example.service.iservice.MyIService;
+import com.example.service.servicemessage.jobservice.MyJobSchedule;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TimerTask;
@@ -31,13 +38,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button button;
     private Button button_AIDL;
     private Button button_stop;
-
+    private InComingHandlerMessage mHandlerMessage;
     @Override
     protected void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initView();
         bindRemoteService();
+        mHandlerMessage = new InComingHandlerMessage(this);
     }
 
 
@@ -145,7 +153,57 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }).start();
                 break;
             case R.id.button_stop:
+
+                if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                    JobScheduler jobScheduler = (JobScheduler)getSystemService
+                            (Context.JOB_SCHEDULER_SERVICE);
+//                  第一个参数是你要运行的任务的标识符，第二个是这个Service组件的类名。
+                    JobInfo.Builder builderInfo = new JobInfo.Builder(1,
+                            new ComponentName(getPackageName(),
+                            MyJobSchedule.class.getName()));
+                    builderInfo.setPeriodic(3000);// 设置运行周期，每三秒执行一次
+                    builderInfo.setPersisted(true); //通知系统系统当你的设备重启之后你的任务是否还要继续执行。
+                    builderInfo.setRequiresCharging(true);//只有当设备在充电时这个任务才会被执行。
+                    int schedule = jobScheduler.schedule(builderInfo.build());// 执行任务
+                    if(schedule <= 0) {// schedule 应该返回的是 builder 的标识码
+                        // schedule 如果 < 0, 则发生了错误
+                        // do something
+                        // 如果失败 取消 指定任务
+                        jobScheduler.cancel(1);
+                        // 取消所有任务
+                        jobScheduler.cancelAll();
+                    }
+                }
+
                 break;
+        }
+    }
+
+
+    private static class InComingHandlerMessage extends Handler{
+
+        private WeakReference<MainActivity> mActivityWeakReference;
+
+        InComingHandlerMessage (MainActivity activityWeakReference) {
+            this.mActivityWeakReference = new WeakReference<>(activityWeakReference);
+        }
+
+        @Override
+        public void handleMessage (Message msg) {
+            MainActivity mainActivity = mActivityWeakReference.get();
+            if(mainActivity == null) {
+                return;
+            }
+            Message m;
+            switch(msg.what){
+                case 1:
+                    m = Message.obtain(this, 1);
+                    sendMessage(m);
+                    break;
+                case 2:
+                    break;
+            }
+            super.handleMessage(msg);
         }
     }
 }
